@@ -205,7 +205,7 @@
     <div class="flex gap-8 flex-wrap mb-12">
       ${g.amenities.map(a=>`<span class="amenity-tag">${a}</span>`).join('')}
     </div>
-    <a href="gym-detail.html" class="btn btn--primary" style="width:100%;justify-content:center">View & Book →</a>
+    <a href="{{ route('gym-details')}}" class="btn btn--primary" style="width:100%;justify-content:center">View & Book →</a>
   `;
             document.getElementById('quickDetail').style.display = 'block';
         }

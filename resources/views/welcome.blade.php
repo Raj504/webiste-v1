@@ -11,7 +11,7 @@
 <body>
 
     <header class="topnav">
-        <a href="index.html" class="topnav-logo">GymPass<span>.</span>in</a>
+        <a href="{{ route('index') }}" class="topnav-logo">GymPass<span>.</span>in</a>
         <nav class="topnav-links">
             <a href="{{ route('search') }}" class="topnav-link">Find Gyms</a>
             <a href="#how" class="topnav-link">How it Works</a>
