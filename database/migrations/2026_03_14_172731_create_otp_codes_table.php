@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreateOtpCodesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,15 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('otp_codes', function (Blueprint $table) {
             $table->id();
+            $table->string('phone', 15)->index();
+            $table->string('code', 6);
             $table->enum('role', ['traveler', 'owner']);
-            $table->string('phone', 15)->unique();
-            $table->string('name');
-            $table->string('email')->nullable()->unique();
-            $table->string('home_city')->nullable();
+            $table->timestamp('expires_at');
+            $table->boolean('is_used')->default(false);
+            $table->unsignedTinyInteger('attempts')->default(0);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -32,6 +32,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('otp_codes');
     }
 }
