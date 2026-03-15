@@ -128,14 +128,6 @@ class LoginController extends Controller
         );
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Logout
-    //
-    // POST /api/auth/logout
-    // Header: Authorization: Bearer {token}
-    //
-    // Revokes only the current token — not all tokens.
-    // ─────────────────────────────────────────────────────────────────────────
     public function logout(Request $request): JsonResponse
     {
         // Delete only the token used in this request
