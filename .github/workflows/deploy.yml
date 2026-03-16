@@ -1,0 +1,128 @@
+name: Deploy to Hostinger
+
+# Triggers on every push to main.
+# To deploy manually: Actions tab → Deploy to Hostinger → Run workflow
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. PHP 7.4 setup ───────────────────────────────────────────────────
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, bcmath, pdo, pdo_mysql, tokenizer, xml, ctype, json
+          coverage: none
+
+      # ── 3. Composer install (production, no dev deps) ──────────────────────
+      - name: Install Composer dependencies
+        run: |
+          composer install \
+            --no-dev \
+            --optimize-autoloader \
+            --no-interaction \
+            --prefer-dist
+
+      # ── 4. CI .env (not deployed — only needed for local artisan calls) ─────
+      - name: Create CI .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      # ── 5. Add SSH key ─────────────────────────────────────────────────────
+      #    Your Hostinger details (from hPanel):
+      #      IP:       82.25.125.167
+      #      Port:     65002
+      #      Username: u791137564
+      #    Store the private key in GitHub Secrets as HOSTINGER_SSH_KEY
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 65002 -H 82.25.125.167 >> ~/.ssh/known_hosts 2>/dev/null
+
+      # ── 6. Maintenance mode on ─────────────────────────────────────────────
+      - name: Enable maintenance mode
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p 65002 \
+            -o StrictHostKeyChecking=no \
+            u791137564@82.25.125.167 \
+            "cd ${{ secrets.HOSTINGER_PATH }} && php artisan down --retry=15 --render='errors::503' || true"
+
+      # ── 7. Rsync files ─────────────────────────────────────────────────────
+      #    --delete   removes files on server no longer in local
+      #    .env is excluded — the server's .env is never overwritten
+      - name: Sync files to server
+        run: |
+          rsync -azP \
+            --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='.env' \
+            --exclude='storage/app/public' \
+            --exclude='storage/logs' \
+            -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
+            ./ \
+            u791137564@82.25.125.167:${{ secrets.HOSTINGER_PATH }}
+
+      # ── 8. Post-deploy commands on server ─────────────────────────────────
+      - name: Run post-deploy commands
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p 65002 \
+            -o StrictHostKeyChecking=no \
+            u791137564@82.25.125.167 << 'ENDSSH'
+            set -e
+            cd ${{ secrets.HOSTINGER_PATH }}
+
+            # Link storage if not already linked
+            php artisan storage:link --force || true
+
+            # Run any pending migrations
+            php artisan migrate --force
+
+            # Clear all caches then rebuild them
+            php artisan config:clear
+            php artisan config:cache
+            php artisan route:clear
+            php artisan route:cache
+            php artisan view:clear
+            php artisan view:cache
+            php artisan event:clear
+            php artisan event:cache
+
+            # Ensure correct permissions on writable dirs
+            chmod -R 775 storage bootstrap/cache
+          ENDSSH
+
+      # ── 9. Maintenance mode off ────────────────────────────────────────────
+      #    always() ensures this runs even if step 8 fails
+      #    so the site never stays in maintenance mode after a bad deploy
+      - name: Disable maintenance mode
+        if: always()
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p 65002 \
+            -o StrictHostKeyChecking=no \
+            u791137564@82.25.125.167 \
+            "cd ${{ secrets.HOSTINGER_PATH }} && php artisan up"
+
+      # ── 10. Cleanup ────────────────────────────────────────────────────────
+      - name: Remove SSH key from runner
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
