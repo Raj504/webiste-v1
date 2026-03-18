@@ -33,7 +33,7 @@ class OtpService
      */
     public function send(string $phone, string $role): OtpCode
     {
-        $this->enforceRateLimit($phone);
+         //$this->enforceRateLimit($phone);
 
         // Invalidate any previous unused OTPs for this phone+role
         OtpCode::where('phone', $phone)
