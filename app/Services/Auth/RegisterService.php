@@ -63,11 +63,15 @@ class RegisterService
             $gym = Gym::create([
                 'user_id'      => $user->id,
                 'name'         => $data['gym_name'],
-                'city'         => $data['city'],
-                'area'         => $data['area'],
+                'address_text' => $data['address_text'],
+                'lat'          => $data['lat'],
+                'lng'          => $data['lng'],
+                'city'         => $data['city'] ?? null,
+                'area'         => $data['area'] ?? null,
                 'monthly_rate' => (int) $data['monthly_rate'],
                 'upi_id'       => $data['upi_id'] ?? null,
-                'status'       => 'pending', // Requires admin verification
+                'status'       => 'pending', 
+                'mapbox_place_id' => $data['mapbox_place_id'] ?? null,
             ]);
 
             return compact('user', 'gym');

@@ -15,9 +15,13 @@ class Gym extends Model
         'name',
         'city',
         'area',
+        'address_text',
+        'lat', 
+        'lng',
         'monthly_rate',
         'upi_id',
         'status',
+        'mapbox_place_id'
     ];
 
     protected $casts = [

@@ -189,6 +189,9 @@ class AuthController extends Controller
                 'gym' => [
                     'id'           => $gym->id,
                     'name'         => $gym->name,
+                    'address_text' => $gym->address_text,
+                    'lat'          => $gym->lat,
+                    'lng'          => $gym->lng,
                     'city'         => $gym->city,
                     'area'         => $gym->area,
                     'monthly_rate' => $gym->monthly_rate,
