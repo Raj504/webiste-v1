@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\NearbyGymController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,8 +30,9 @@ Route::prefix('auth')->group(function () {
 | Auth — Protected routes (Sanctum token required)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('me',      [LoginController::class, 'me']);
+    Route::get('/gyms/nearby', [NearbyGymController::class, 'index']);
 });

@@ -25,6 +25,7 @@ class RegisterOwnerRequest extends FormRequest
             'monthly_rate' => ['required', 'integer', 'min:200', 'max:100000'],
             'upi_id'       => ['nullable', 'string', 'max:100'],
             'terms'        => ['required', 'accepted'],
+            'mapbox_place_id' => ['nullable', 'string'],
         ];
     }
 

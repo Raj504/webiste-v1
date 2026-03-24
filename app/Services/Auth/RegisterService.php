@@ -70,7 +70,7 @@ class RegisterService
                 'area'         => $data['area'] ?? null,
                 'monthly_rate' => (int) $data['monthly_rate'],
                 'upi_id'       => $data['upi_id'] ?? null,
-                'status'       => 'pending', 
+                'status'       => 'active', 
                 'mapbox_place_id' => $data['mapbox_place_id'] ?? null,
             ]);
 
