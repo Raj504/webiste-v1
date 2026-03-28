@@ -30,9 +30,10 @@ Route::prefix('auth')->group(function () {
 | Auth — Protected routes (Sanctum token required)
 |--------------------------------------------------------------------------
 */
+Route::get('/gyms/nearby', [NearbyGymController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('me',      [LoginController::class, 'me']);
-    Route::get('/gyms/nearby', [NearbyGymController::class, 'index']);
 });
