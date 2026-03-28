@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Gym;
 
 use Illuminate\Http\Request;
 
@@ -32,5 +33,14 @@ class GymController extends Controller
 
     public function analytics(){
         return view('analytics');
+    }
+
+    public function show($id)
+    {
+        $gym = Gym::with('plans')
+            ->where('is_active', true)
+            ->findOrFail($id);
+
+        return response()->json(['data' => $gym]);
     }
 }
