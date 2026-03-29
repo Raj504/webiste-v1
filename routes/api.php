@@ -37,6 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('me',      [LoginController::class, 'me']);
-    Route::get('/gyms/{id}',       [GymController::class, 'show']);
+    Route::get('/gyms/{id}',[GymController::class, 'show']);
 
 });

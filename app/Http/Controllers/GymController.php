@@ -37,10 +37,7 @@ class GymController extends Controller
 
     public function show($id)
     {
-        $gym = Gym::with('plans')
-            ->where('is_active', true)
-            ->findOrFail($id);
-
+        $gym = Gym::where('status', 'active')->findOrFail($id);
         return response()->json(['data' => $gym]);
     }
 }
