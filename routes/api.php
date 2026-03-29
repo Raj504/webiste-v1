@@ -32,11 +32,13 @@ Route::prefix('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/gyms/nearby', [NearbyGymController::class, 'index']);
+Route::get('/gyms/{id}/plans', [GymController::class, 'plans']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('me',      [LoginController::class, 'me']);
     Route::get('/gyms/{id}',[GymController::class, 'show']);
+
 
 });

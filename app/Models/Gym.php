@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+
 
 class Gym extends Model
 {
@@ -47,5 +50,10 @@ class Gym extends Model
             '7_days'  => (int) round($this->monthly_rate * 0.50),
             'monthly' => $this->monthly_rate,
         ];
+    }
+
+    public function plans(): HasMany
+    {
+        return $this->hasMany(GymPlan::class);
     }
 }

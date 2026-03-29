@@ -74,6 +74,14 @@ class RegisterService
                 'mapbox_place_id' => $data['mapbox_place_id'] ?? null,
             ]);
 
+            $monthly = $gym->monthly_rate;
+            $gym->plans()->createMany([
+                ['name' => 'Day Pass',     'type' => 'day',     'price' => (int) round($monthly * 0.10)],
+                ['name' => '3 Day Pass',   'type' => '3_day',   'price' => (int) round($monthly * 0.25)],
+                ['name' => '7 Day Pass',   'type' => '7_day',   'price' => (int) round($monthly * 0.50)],
+                ['name' => 'Monthly Pass', 'type' => 'monthly', 'price' => $monthly],
+            ]);
+
             return compact('user', 'gym');
         });
 

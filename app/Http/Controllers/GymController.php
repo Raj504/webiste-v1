@@ -40,4 +40,13 @@ class GymController extends Controller
         $gym = Gym::where('status', 'active')->findOrFail($id);
         return response()->json(['data' => $gym]);
     }
+
+    public function plans($id)
+    {
+        $gym = Gym::where('status', 'active')->findOrFail($id);
+
+        return response()->json([
+            'data' => $gym->plans
+        ]);
+    }
 }

@@ -196,12 +196,7 @@ class AuthController extends Controller
                     'area'         => $gym->area,
                     'monthly_rate' => $gym->monthly_rate,
                     'status'       => $gym->status,
-                    'pricing'      => [
-                        'per_day'  => (int) round($gym->monthly_rate * 0.10),
-                        '3_days'   => (int) round($gym->monthly_rate * 0.25),
-                        '7_days'   => (int) round($gym->monthly_rate * 0.50),
-                        'monthly'  => $gym->monthly_rate,
-                    ],
+                    'pricing' => $gym->plans->keyBy('type')->map(fn($p) => $p->price),
                 ],
             ],
         );
