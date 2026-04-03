@@ -24,7 +24,8 @@ class Gym extends Model
         'monthly_rate',
         'upi_id',
         'status',
-        'mapbox_place_id'
+        'mapbox_place_id',
+        'description'
     ];
 
     protected $casts = [
