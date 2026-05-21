@@ -25,17 +25,11 @@ class Gym extends Model
         'upi_id',
         'status',
         'mapbox_place_id',
-        'description',
-        'cover_photo',  
-        'photos',      
-        'videos',  
+        'description'
     ];
 
     protected $casts = [
         'monthly_rate' => 'integer',
-        'cover_photo'  => 'array',
-        'photos'       => 'array',
-        'videos'       => 'array',
     ];
 
     // ─────────────────────────────────────────
