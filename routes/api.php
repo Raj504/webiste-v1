@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\NearbyGymController;
 use App\Http\Controllers\GymController;
+use App\Http\Controllers\Api\Owner\GymPlanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,5 +42,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/gyms/{id}',[GymController::class, 'show']);
     Route::put('/gyms/{id}', [GymController::class, 'update']);
     Route::post('/gyms/{id}/operating-hours', [GymController::class, 'updateOperatingHours']);
+
+    Route::prefix('owner/gym/plans')->group(function () {
+        Route::get(    '/',         [GymPlanController::class, 'index']);    
+        Route::post(   '/',         [GymPlanController::class, 'store']);    
+        Route::put(    '/{planId}', [GymPlanController::class, 'update']);   
+        Route::delete( '/{planId}', [GymPlanController::class, 'destroy']);  
+    });
 
 });

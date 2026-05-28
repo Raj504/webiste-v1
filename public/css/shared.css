@@ -2494,3 +2494,94 @@ textarea.field__input {
   color: var(--text-secondary);
 }
 .hours-close-label input { accent-color: var(--red); }
+
+
+/* plan */
+
+.plan-row {
+  display: grid;
+  grid-template-columns: 1fr 150px 44px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-1);
+  transition: opacity var(--t-fast), background var(--t-fast);
+}
+.plan-row:last-child { border-bottom: none; }
+.plan-row.is-disabled { opacity: 0.45; }
+.plan-row.is-disabled .plan-price-input { pointer-events: none; }
+
+.plan-row__info { display: flex; flex-direction: column; gap: 3px; }
+.plan-row__name { font-size: 14px; font-weight: 600; }
+.plan-row__meta { font-size: 12px; color: var(--text-secondary); }
+.plan-row__toggle { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.plan-row__toggle-label { font-size: 11px; color: var(--text-secondary); }
+
+/* Price input */
+.plan-price-wrap { position: relative; }
+.plan-price-wrap__sym {
+  position: absolute; left: 11px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+.plan-price-input {
+  width: 100%;
+  padding: 9px 10px 9px 26px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  background: var(--surface-3);
+  border: 1.5px solid var(--border-1);
+  border-radius: var(--r-md);
+  color: var(--brand);
+  text-align: right;
+  outline: none;
+  transition: border-color var(--t-fast);
+}
+.plan-price-input:focus { border-color: var(--brand); }
+
+/* Delete btn (custom plans only) */
+.plan-delete-btn {
+  width: 32px; height: 32px;
+  border-radius: var(--r-sm);
+  background: var(--red-dim);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: var(--red);
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  flex-shrink: 0;
+}
+.plan-delete-btn:hover { background: rgba(239,68,68,0.2); }
+
+/* Add plan form */
+.plan-add-row {
+  padding: 20px;
+  border-top: 1px solid var(--border-1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.plan-add-row__inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.plan-add-row__preview {
+  font-size: 13px;
+  padding: 8px 12px;
+  background: var(--surface-3);
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--border-2);
+}
+
+/* Empty state */
+.plans-empty {
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}

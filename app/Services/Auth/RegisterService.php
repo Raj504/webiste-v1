@@ -76,10 +76,10 @@ class RegisterService
 
             $monthly = $gym->monthly_rate;
             $gym->plans()->createMany([
-                ['name' => 'Day Pass',     'type' => 'day',     'price' => (int) round($monthly * 0.10)],
-                ['name' => '3 Day Pass',   'type' => '3_day',   'price' => (int) round($monthly * 0.25)],
-                ['name' => '7 Day Pass',   'type' => '7_day',   'price' => (int) round($monthly * 0.50)],
-                ['name' => 'Monthly Pass', 'type' => 'monthly', 'price' => $monthly],
+                ['name' => '1 Day Pass',   'duration' => 1, 'unit' => 'day',   'price' => round($monthly * 0.10), 'is_default' => true],
+                ['name' => '3 Day Pass',   'duration' => 3, 'unit' => 'day',   'price' => round($monthly * 0.25), 'is_default' => true],
+                ['name' => '7 Day Pass',   'duration' => 7, 'unit' => 'day',   'price' => round($monthly * 0.50), 'is_default' => true],
+                ['name' => '1 Month Pass', 'duration' => 1, 'unit' => 'month', 'price' => $monthly,               'is_default' => true],
             ]);
 
             return compact('user', 'gym');

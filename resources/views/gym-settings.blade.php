@@ -96,38 +96,53 @@
                         <!-- PRICING -->
                         <div id="sec-pricing" class="settings-section">
                             <div class="settings-section__title">Pricing</div>
-                            <div class="settings-section__sub">Set your monthly rate — all other plans are
-                                auto-calculated.</div>
+                            <div class="settings-section__sub">Set your own price for each plan. Add custom durations or disable plans you don't offer.</div>
+                         
+                            <!-- Default Plans -->
+                            <div class="panel mb-20">
+                                <div class="panel__header">
+                                    <div class="panel__title">Default Plans</div>
+                                    <span class="panel__action">Disable plans you don't want to offer</span>
+                                </div>
+                                <div class="panel__body" style="padding:0">
+                                    <div id="default-plans-list"></div>
+                                </div>
+                                <div class="save-bar">
+                                    <span class="save-bar__note">Changes apply to future bookings only</span>
+                                    <button class="btn btn--primary" onclick="saveDefaultPlans()">Save Default Plans</button>
+                                </div>
+                            </div>
+                         
+                            <!-- Custom Plans -->
                             <div class="panel">
-                                <div class="panel__body">
-                                    <div class="field">
-                                        <label class="field__label">Monthly Membership Rate (₹)</label>
-                                        <input class="field__input t-display t-brand" id="rateInput" type="number"
-                                            value="800" oninput="updatePricingPreview()">
-                                    </div>
-                                    <div class="pricing-preview mb-16">
-                                        <div class="t-label pricing-preview__label">Auto-calculated plans</div>
-                                        <div class="pricing-preview__row">
-                                            <span>Per Day <span class="t-muted">· 10% of monthly</span></span>
-                                            <span class="pricing-preview__price" id="pd">₹80</span>
+                                <div class="panel__header">
+                                    <div class="panel__title">Custom Plans</div>
+                                    <span class="panel__action">Add any duration you want</span>
+                                </div>
+                                <div class="panel__body" style="padding:0">
+                                    <div id="custom-plans-list"></div>
+                         
+                                    <!-- Add new custom plan -->
+                                    <div class="plan-add-row" id="plan-add-form">
+                                        <div class="plan-add-row__inputs">
+                                            <div class="plan-add-row__duration">
+                                                <label class="field__label">Duration</label>
+                                                <input class="field__input" type="number" id="newDuration" min="1" max="365" placeholder="e.g. 10">
+                                            </div>
+                                            <div class="plan-add-row__unit">
+                                                <label class="field__label">Unit</label>
+                                                <select class="field__input" id="newUnit">
+                                                    <option value="day">Day(s)</option>
+                                                    <option value="month">Month(s)</option>
+                                                </select>
+                                            </div>
+                                            <div class="plan-add-row__price">
+                                                <label class="field__label">Price (₹)</label>
+                                                <input class="field__input" type="number" id="newPrice" min="1" placeholder="e.g. 350">
+                                            </div>
                                         </div>
-                                        <div class="pricing-preview__row">
-                                            <span>3 Days <span class="t-muted">· 25% of monthly</span></span>
-                                            <span class="pricing-preview__price" id="p3">₹200</span>
-                                        </div>
-                                        <div class="pricing-preview__row">
-                                            <span>7 Days <span class="t-muted">· 50% of monthly</span></span>
-                                            <span class="pricing-preview__price" id="p7">₹400</span>
-                                        </div>
-                                        <div class="pricing-preview__row">
-                                            <span class="t-brand">Monthly</span>
-                                            <span class="pricing-preview__price" id="pm">₹800</span>
-                                        </div>
-                                    </div>
-                                    <div class="save-bar">
-                                        <span class="save-bar__note">Applies to future bookings only</span>
-                                        <button class="btn btn--primary" onclick="savedFeedback(this)">Update
-                                            Pricing</button>
+                                        <div class="plan-add-row__preview t-muted" id="planPreview">Fill in the fields above</div>
+                                        <button class="btn btn--primary btn--sm" onclick="addCustomPlan()">+ Add Plan</button>
                                     </div>
                                 </div>
                             </div>
@@ -428,7 +443,153 @@
         //     renderHours();
         // }
 
-         renderHours();
+
+
+        let gymPlans = [
+            { id: 1, name: '1 Day Pass',   duration: 1, unit: 'day',   price: 80,  is_default: true,  is_enabled: true },
+            { id: 2, name: '3 Day Pass',   duration: 3, unit: 'day',   price: 200, is_default: true,  is_enabled: true },
+            { id: 3, name: '7 Day Pass',   duration: 7, unit: 'day',   price: 400, is_default: true,  is_enabled: true },
+            { id: 4, name: '1 Month Pass', duration: 1, unit: 'month', price: 800, is_default: true,  is_enabled: true },
+        ];
+        
+        // ── Render ────────────────────────────────────────────────────────────────────
+        function renderPlans() {
+            const defaults = gymPlans.filter(p => p.is_default);
+            const customs  = gymPlans.filter(p => !p.is_default);
+        
+            // Default plans
+            document.getElementById('default-plans-list').innerHTML = defaults.length
+                ? defaults.map(p => planRowHtml(p, false)).join('')
+                : '<div class="plans-empty">No default plans found.</div>';
+        
+            // Custom plans
+            document.getElementById('custom-plans-list').innerHTML = customs.length
+                ? customs.map(p => planRowHtml(p, true)).join('')
+                : '<div class="plans-empty">No custom plans yet. Add one below.</div>';
+        
+            // Live preview
+            updatePlanPreview();
+        }
+        
+        function planRowHtml(p, showDelete) {
+            const unitLabel = p.duration === 1 ? p.unit : `${p.unit}s`;
+            const meta      = `${p.duration} ${unitLabel}`;
+            return `
+                <div class="plan-row ${p.is_enabled ? '' : 'is-disabled'}" id="plan-row-${p.id}">
+                    <div class="plan-row__info">
+                        <div class="plan-row__name">${p.name}</div>
+                        <div class="plan-row__meta">${meta}</div>
+                        <div class="plan-row__toggle">
+                            <label class="toggle__switch" style="width:36px;height:20px">
+                                <input type="checkbox" ${p.is_enabled ? 'checked' : ''}
+                                    onchange="togglePlan(${p.id}, this.checked)">
+                                <span class="toggle__track"></span>
+                            </label>
+                            <span class="plan-row__toggle-label">${p.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                        </div>
+                    </div>
+                    <div class="plan-price-wrap">
+                        <span class="plan-price-wrap__sym">₹</span>
+                        <input class="plan-price-input" type="number" min="1"
+                            value="${p.price}"
+                            onchange="updatePlanPrice(${p.id}, this.value)"
+                            aria-label="${p.name} price">
+                    </div>
+                    ${showDelete
+                        ? `<button class="plan-delete-btn" onclick="deleteCustomPlan(${p.id})" title="Delete plan">✕</button>`
+                        : '<div></div>'
+                    }
+                </div>`;
+        }
+        
+        // ── Actions ───────────────────────────────────────────────────────────────────
+        function togglePlan(id, enabled) {
+            const plan = gymPlans.find(p => p.id === id);
+            if (plan) plan.is_enabled = enabled;
+            renderPlans();
+            // API: PUT /api/owner/gym/plans/{id} { is_enabled: enabled }
+        }
+        
+        function updatePlanPrice(id, price) {
+            const plan = gymPlans.find(p => p.id === id);
+            if (plan) plan.price = parseInt(price) || 0;
+            // API: PUT /api/owner/gym/plans/{id} { price: parseInt(price) }
+        }
+        
+        function saveDefaultPlans() {
+            // API: loop through defaults and PUT each one
+            // For now just show feedback
+            const btn = event.target;
+            savedFeedback(btn);
+        }
+        
+        function addCustomPlan() {
+            const duration = parseInt(document.getElementById('newDuration').value);
+            const unit     = document.getElementById('newUnit').value;
+            const price    = parseInt(document.getElementById('newPrice').value);
+        
+            if (!duration || duration < 1) { alert('Enter a valid duration.'); return; }
+            if (!price || price < 1)       { alert('Enter a valid price.'); return; }
+        
+            // Check duplicate
+            const exists = gymPlans.find(p => p.duration === duration && p.unit === unit);
+            if (exists) {
+                alert(`A ${duration} ${unit} plan already exists. Update its price instead.`);
+                return;
+            }
+        
+            const unitLabel = duration === 1 ? unit : `${unit}s`;
+            const name      = `${duration} ${unitLabel.charAt(0).toUpperCase() + unitLabel.slice(1)} Pass`;
+        
+            // Optimistic — add to local state, then API
+            const tempId = Date.now();
+            gymPlans.push({ id: tempId, name, duration, unit, price, is_default: false, is_enabled: true });
+            renderPlans();
+        
+            // Clear form
+            document.getElementById('newDuration').value = '';
+            document.getElementById('newPrice').value    = '';
+        
+            // API: POST /api/owner/gym/plans { duration, unit, price }
+            // On success: replace tempId with real id from response
+        }
+        
+        function deleteCustomPlan(id) {
+            if (!confirm('Delete this plan? Travelers will no longer see it.')) return;
+            gymPlans = gymPlans.filter(p => p.id !== id);
+            renderPlans();
+            // API: DELETE /api/owner/gym/plans/{id}
+        }
+        
+        // Live preview of the new plan being added
+        function updatePlanPreview() {
+            const duration = parseInt(document.getElementById('newDuration')?.value);
+            const unit     = document.getElementById('newUnit')?.value;
+            const price    = parseInt(document.getElementById('newPrice')?.value);
+            const preview  = document.getElementById('planPreview');
+            if (!preview) return;
+        
+            if (duration && unit && price) {
+                const unitLabel = duration === 1 ? unit : `${unit}s`;
+                const name      = `${duration} ${unitLabel.charAt(0).toUpperCase() + unitLabel.slice(1)} Pass`;
+                preview.innerHTML = `<span class="t-brand">${name}</span> &nbsp;·&nbsp; ₹${price.toLocaleString('en-IN')}`;
+                preview.classList.remove('t-muted');
+            } else {
+                preview.textContent = 'Fill in the fields above to preview';
+                preview.classList.add('t-muted');
+            }
+        }
+        
+        // Wire up preview on input
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlans();
+            ['newDuration', 'newUnit', 'newPrice'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', updatePlanPreview);
+            });
+        });
+
+        renderHours();
+
     </script>
 </body>
 
