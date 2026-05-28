@@ -2452,3 +2452,45 @@ textarea.field__input {
   background: var(--surface-3);
   color: var(--text-secondary);
 }
+
+/* Operating Hours */
+
+.hours-day-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-1);
+}
+.hours-day-row:last-child { border-bottom: none; }
+.hours-day-label { font-size: 13px; font-weight: 500; }
+.hours-time-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity var(--t-fast);
+}
+.hours-time-range.is-closed { opacity: 0.3; pointer-events: none; }
+.hours-time-input {
+  padding: 9px 12px;
+  background: var(--surface-3);
+  border: 1.5px solid var(--border-1);
+  border-radius: var(--r-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color var(--t-fast);
+  width: 130px;
+}
+.hours-time-input:focus { border-color: var(--brand); }
+.hours-close-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.hours-close-label input { accent-color: var(--red); }

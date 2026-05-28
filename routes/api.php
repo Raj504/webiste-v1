@@ -40,6 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('me',      [LoginController::class, 'me']);
     Route::get('/gyms/{id}',[GymController::class, 'show']);
     Route::put('/gyms/{id}', [GymController::class, 'update']);
-
+    Route::post('/gyms/{id}/operating-hours', [GymController::class, 'updateOperatingHours']);
 
 });

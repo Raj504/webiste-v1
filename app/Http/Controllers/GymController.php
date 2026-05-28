@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Gym;
 use App\Models\User;
 use App\Http\Requests\UpdateGymRequest;
+use App\Models\GymOperatingHour;
+use App\Http\Requests\UpdateGymOperatingHoursRequest;
 
 use Illuminate\Http\Request;
 
@@ -81,6 +83,30 @@ class GymController extends Controller
                     'role'  => $user->role,
                 ],
             ]
+        ]);
+    }
+
+    public function updateOperatingHours(UpdateGymOperatingHoursRequest $request, $id)
+    {   
+        $gym = Gym::where('user_id', auth()->id())->where('id', $id)->firstOrFail();
+
+        // delete old rows
+        $gym->operatingHours()->delete();
+
+        // insert new rows
+        foreach ($request->hours as $hour) {
+
+            $gym->operatingHours()->create([
+                'day'        => $hour['day'],
+                'open_time'  => $hour['closed'] ? null : $hour['open'],
+                'close_time' => $hour['closed'] ? null : $hour['close'],
+                'is_closed'  => $hour['closed'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Operating hours updated successfully',
+            'data' => $gym->operatingHours
         ]);
     }
 }

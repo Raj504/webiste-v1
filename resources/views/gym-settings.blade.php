@@ -136,38 +136,43 @@
                         <!-- HOURS -->
                         <div id="sec-hours" class="settings-section">
                             <div class="settings-section__title">Operating Hours</div>
-                            <div class="settings-section__sub">Your opening and closing times each day.</div>
+                            <div class="settings-section__sub">Set your opening and closing times for each day.</div>
                             <div class="panel">
                                 <div class="panel__body">
-                                    <div class="hours-grid mb-20">
-                                        <div class="hour-card" onclick="alert('Edit Mon–Fri hours')">
-                                            <div class="hour-card__day">Mon – Fri</div>
-                                            <div class="hour-card__time">6:00 AM – 10:00 PM</div>
-                                        </div>
-                                        <div class="hour-card" onclick="alert('Edit Saturday hours')">
-                                            <div class="hour-card__day">Saturday</div>
-                                            <div class="hour-card__time">7:00 AM – 9:00 PM</div>
-                                        </div>
-                                        <div class="hour-card is-closed" onclick="alert('Edit Sunday hours')">
-                                            <div class="hour-card__day">Sunday</div>
-                                            <div class="hour-card__time">Closed</div>
-                                        </div>
-                                    </div>
+                        
+                                    <!-- Days -->
+                                    <div id="hours-days"></div>
+                        
+                                    <!-- Divider -->
+                                    <div class="divider"></div>
+                        
+                                    <!-- Closed today toggle -->
                                     <div class="toggle">
                                         <div class="toggle__info">
                                             <div class="toggle__title">Mark as Closed Today</div>
-                                            <div class="toggle__desc">Temporarily close for a holiday or maintenance
-                                            </div>
+                                            <div class="toggle__desc">Temporarily close for a holiday or maintenance</div>
                                         </div>
                                         <label class="toggle__switch">
-                                            <input type="checkbox">
+                                            <input type="checkbox" id="closedToday" onchange="renderHoursSummary()">
                                             <span class="toggle__track"></span>
                                         </label>
                                     </div>
+                        
+                                    {{-- <!-- Live summary -->
+                                    <div class="callout mt-12" id="hours-summary" style="font-size:12px;line-height:2"></div>
+                        
+                                    <!-- Presets -->
+                                    <div class="flex gap-8 mt-12 mb-16 flex-wrap">
+                                        <span class="t-label" style="align-self:center">Quick presets:</span>
+                                        <button class="btn btn--ghost btn--sm" onclick="applyHoursPreset('standard')">Standard</button>
+                                        <button class="btn btn--ghost btn--sm" onclick="applyHoursPreset('early')">Early Bird</button>
+                                        <button class="btn btn--ghost btn--sm" onclick="applyHoursPreset('extended')">Extended</button>
+                                        <button class="btn btn--ghost btn--sm" onclick="applyHoursPreset('247')">24 / 7</button>
+                                    </div> --}}
+                        
                                     <div class="save-bar">
                                         <span class="save-bar__note">Travelers see real-time open/closed status</span>
-                                        <button class="btn btn--primary" onclick="savedFeedback(this)">Save
-                                            Hours</button>
+                                        <button class="btn btn--primary" onclick="savedFeedback(this)">Save Hours</button>
                                     </div>
                                 </div>
                             </div>
@@ -361,6 +366,69 @@
                 btn.style.background = '';
             }, 2000);
         }
+
+        const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+        let hoursSchedule = DAYS.map((d, i) => ({
+            day: d,
+            open:   i < 5 ? '06:00' : i === 5 ? '07:00' : '00:00',
+            close:  i < 5 ? '22:00' : i === 5 ? '21:00' : '00:00',
+            closed: i === 6,
+        }));
+
+        function fmtTime(t) {
+            const [h, m] = t.split(':').map(Number);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${ampm}`;
+        }
+
+        function renderHours() {
+            const c = document.getElementById('hours-days');
+            c.innerHTML = hoursSchedule.map((s, i) => `
+                <div class="hours-day-row">
+                    <div class="hours-day-label">${s.day}</div>
+                    <div class="hours-time-range ${s.closed ? 'is-closed' : ''}" id="hrange-${i}">
+                        <input type="time" class="hours-time-input" value="${s.open}"
+                            onchange="hoursSchedule[${i}].open=this.value;renderHoursSummary()"
+                            aria-label="${s.day} open time">
+                        <span class="t-muted">—</span>
+                        <input type="time" class="hours-time-input" value="${s.close}"
+                            onchange="hoursSchedule[${i}].close=this.value;renderHoursSummary()"
+                            aria-label="${s.day} close time">
+                    </div>
+                    <label class="hours-close-label">
+                        <input type="checkbox" ${s.closed ? 'checked' : ''}
+                            onchange="hoursSchedule[${i}].closed=this.checked;renderHours()">
+                        ${s.closed ? '<span class="pill pill--red">Closed</span>' : '<span>Close</span>'}
+                    </label>
+                </div>`).join('');
+            renderHoursSummary();
+        }
+
+        function renderHoursSummary() {
+            const closedToday = document.getElementById('closedToday')?.checked;
+            const lines = hoursSchedule.map(s =>
+                s.closed
+                    ? `<strong>${s.day.slice(0,3)}</strong>: Closed`
+                    : `<strong>${s.day.slice(0,3)}</strong>: ${fmtTime(s.open)} – ${fmtTime(s.close)}`
+            ).join(' &nbsp;·&nbsp; ');
+            document.getElementById('hours-summary').innerHTML =
+                lines + (closedToday ? ' &nbsp;·&nbsp; <span class="t-red">Closed today (override active)</span>' : '');
+        }
+
+        // function applyHoursPreset(key) {
+        //     const presets = {
+        //         standard: { open:'06:00', close:'22:00', closedDays:[6] },
+        //         early:    { open:'05:00', close:'20:00', closedDays:[6] },
+        //         extended: { open:'05:00', close:'23:59', closedDays:[] },
+        //         '247':    { open:'00:00', close:'23:59', closedDays:[] },
+        //     };
+        //     const p = presets[key];
+        //     hoursSchedule = DAYS.map((d,i) => ({ day:d, open:p.open, close:p.close, closed:p.closedDays.includes(i) }));
+        //     renderHours();
+        // }
+
+         renderHours();
     </script>
 </body>
 
