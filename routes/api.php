@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/gyms/{id}',[GymController::class, 'show']);
     Route::put('/gyms/{id}', [GymController::class, 'update']);
     Route::post('/gyms/{id}/operating-hours', [GymController::class, 'updateOperatingHours']);
+    Route::get('/gyms/{id}/operating-hours', [GymController::class, 'operatingHours']);
+
 
     Route::prefix('owner/gym/plans')->group(function () {
         Route::get(    '/',         [GymPlanController::class, 'index']);    

@@ -5,6 +5,8 @@ use App\Models\Gym;
 use App\Models\User;
 use App\Http\Requests\UpdateGymRequest;
 use App\Models\GymOperatingHour;
+use App\Helpers\ApiResponse;
+
 use App\Http\Requests\UpdateGymOperatingHoursRequest;
 
 use Illuminate\Http\Request;
@@ -41,7 +43,7 @@ class GymController extends Controller
 
     public function show($id)
     {
-        $gym = Gym::where('status', 'active')->findOrFail($id);
+        $gym = Gym::with('owner')->where('status', 'active')->findOrFail($id);
         return response()->json(['data' => $gym]);
     }
 
@@ -108,5 +110,43 @@ class GymController extends Controller
             'message' => 'Operating hours updated successfully',
             'data' => $gym->operatingHours
         ]);
+    }
+
+    public function operatingHours($id)
+    {
+        try {
+    
+            $gym = Gym::where('user_id', auth()->id())
+                ->where('id', $id)
+                ->with('operatingHours')
+                ->firstOrFail();
+    
+            $hours = $gym->operatingHours->map(function ($hour) {
+                return [
+                    'day'    => $hour->day,
+                    'open'   => $hour->open_time,
+                    'close'  => $hour->close_time,
+                    'closed' => (bool) $hour->is_closed,
+                ];
+            });
+    
+            return response()->json([
+                'message' => 'Operating hours fetched successfully',
+                'data'    => $hours
+            ]);
+    
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+    
+            return ApiResponse::badRequest(
+                'gym_not_found',
+                'Gym not found.'
+            );
+    
+        } catch (\Exception $e) {
+    
+            report($e);
+    
+            return ApiResponse::serverError();
+        }
     }
 }
