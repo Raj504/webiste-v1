@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\NearbyGymController;
 use App\Http\Controllers\GymController;
 use App\Http\Controllers\Api\Owner\GymPlanController;
+use App\Http\Controllers\Api\Owner\GymAmenityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +51,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post(   '/',         [GymPlanController::class, 'store']);    
         Route::put(    '/{planId}', [GymPlanController::class, 'update']);   
         Route::delete( '/{planId}', [GymPlanController::class, 'destroy']);  
+    });
+
+    Route::prefix('owner/gym/amenities')->group(function () {
+        Route::get(  '/',        [GymAmenityController::class, 'index']);     // GET all + selected
+        Route::post( '/sync',    [GymAmenityController::class, 'sync']);      // save selection
+        Route::post( '/custom',  [GymAmenityController::class, 'addCustom']); // add new amenity
     });
 
 });

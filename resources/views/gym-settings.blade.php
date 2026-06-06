@@ -193,44 +193,54 @@
                             </div>
                         </div>
 
-                        <!-- AMENITIES -->
+                        {{-- ═══════════════════════════════════════════════════════════
+                            AMENITIES SECTION — drop-in replacement for sec-amenities
+                            ═══════════════════════════════════════════════════════════ --}}
+                        
                         <div id="sec-amenities" class="settings-section">
                             <div class="settings-section__title">Amenities</div>
-                            <div class="settings-section__sub">Select what your gym offers — shown on your listing.
-                            </div>
-                            <div class="panel">
+                            <div class="settings-section__sub">Select what your gym offers — shown on your listing. Add custom amenities if yours isn't listed.</div>
+                        
+                            <div class="panel mb-20">
+                                <div class="panel__header">
+                                    <div class="panel__title">Available Amenities</div>
+                                    <span class="panel__action" id="amenity-count">0 selected</span>
+                                </div>
                                 <div class="panel__body">
-                                    <div class="amenity-grid mb-16">
-                                        <button class="amenity-chip is-selected"
-                                            onclick="this.classList.toggle('is-selected')">🧊 AC</button>
-                                        <button class="amenity-chip is-selected"
-                                            onclick="this.classList.toggle('is-selected')">🔒 Lockers</button>
-                                        <button class="amenity-chip is-selected"
-                                            onclick="this.classList.toggle('is-selected')">🚿 Shower</button>
-                                        <button class="amenity-chip is-selected"
-                                            onclick="this.classList.toggle('is-selected')">🅿️ Parking</button>
-                                        <button class="amenity-chip is-selected"
-                                            onclick="this.classList.toggle('is-selected')">👨‍💼 Trainer</button>
-                                        <button class="amenity-chip is-selected"
-                                            onclick="this.classList.toggle('is-selected')">💪 Free Weights</button>
-                                        <button class="amenity-chip" onclick="this.classList.toggle('is-selected')">🏊
-                                            Pool</button>
-                                        <button class="amenity-chip" onclick="this.classList.toggle('is-selected')">🧘
-                                            Yoga Room</button>
-                                        <button class="amenity-chip" onclick="this.classList.toggle('is-selected')">🥤
-                                            Protein Bar</button>
-                                        <button class="amenity-chip" onclick="this.classList.toggle('is-selected')">📺
-                                            TV / Music</button>
-                                        <button class="amenity-chip" onclick="this.classList.toggle('is-selected')">🌐
-                                            WiFi</button>
-                                        <button class="amenity-chip" onclick="this.classList.toggle('is-selected')">🧺
-                                            Towel Service</button>
-                                    </div>
+                                    <div class="amenity-grid" id="amenity-grid"></div>
                                     <div class="save-bar">
                                         <span class="save-bar__note">Helps travelers filter gyms by amenity</span>
-                                        <button class="btn btn--primary" onclick="savedFeedback(this)">Save
-                                            Amenities</button>
+                                        <button class="btn btn--primary" onclick="saveAmenities(this)">Save Amenities</button>
                                     </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Add custom amenity -->
+                            <div class="panel">
+                                <div class="panel__header">
+                                    <div class="panel__title">Add Custom Amenity</div>
+                                    <span class="panel__action">Visible to all gym owners</span>
+                                </div>
+                                <div class="panel__body">
+                                    <div class="field--row">
+                                        <div class="field">
+                                            <label class="field__label">Emoji Icon</label>
+                                            <input class="field__input" type="text" id="customIcon"
+                                                placeholder="e.g. 🧖" maxlength="4"
+                                                style="font-size:20px;text-align:center">
+                                        </div>
+                                        <div class="field" style="flex:3">
+                                            <label class="field__label">Amenity Name</label>
+                                            <input class="field__input" type="text" id="customName"
+                                                placeholder="e.g. Sauna, Steam Room, Juice Bar..."
+                                                maxlength="50">
+                                        </div>
+                                    </div>
+                                    <div class="callout mb-16">
+                                        <span class="callout__icon">💡</span>
+                                        This amenity will be added to the global list and auto-selected for your gym. Other gym owners can also pick it.
+                                    </div>
+                                    <button class="btn btn--primary btn--sm" onclick="addCustomAmenity(this)">+ Add Amenity</button>
                                 </div>
                             </div>
                         </div>
@@ -581,15 +591,105 @@
         }
         
         // Wire up preview on input
+
+
+        let allAmenities = [
+            { id: 1,  icon: '🧊', name: 'AC',            is_default: true,  is_selected: true  },
+            { id: 2,  icon: '🔒', name: 'Lockers',        is_default: true,  is_selected: true  },
+            { id: 3,  icon: '🚿', name: 'Shower',         is_default: true,  is_selected: true  },
+            { id: 4,  icon: '🅿️', name: 'Parking',        is_default: false, is_selected: false },
+            { id: 5,  icon: '👨‍💼', name: 'Trainer',        is_default: false, is_selected: false },
+            { id: 6,  icon: '💪', name: 'Free Weights',   is_default: false, is_selected: false },
+            { id: 7,  icon: '🏊', name: 'Pool',           is_default: false, is_selected: false },
+            { id: 8,  icon: '🧘', name: 'Yoga Room',      is_default: false, is_selected: false },
+            { id: 9,  icon: '🥤', name: 'Protein Bar',    is_default: false, is_selected: false },
+            { id: 10, icon: '📺', name: 'TV / Music',     is_default: false, is_selected: false },
+            { id: 11, icon: '🌐', name: 'WiFi',           is_default: false, is_selected: false },
+            { id: 12, icon: '🧺', name: 'Towel Service',  is_default: false, is_selected: false },
+        ];
+
+        function renderAmenities() {
+            const grid = document.getElementById('amenity-grid');
+            if (!grid) return;
+        
+            grid.innerHTML = allAmenities.map(a => `
+                <button class="amenity-chip ${a.is_selected ? 'is-selected' : ''}"
+                    onclick="toggleAmenity(${a.id})">
+                    <span class="amenity-chip__icon">${a.icon}</span>
+                    <span class="amenity-chip__name">${a.name}</span>
+                    ${!a.is_default ? '<span class="amenity-chip__badge">Custom</span>' : ''}
+                </button>
+            `).join('');
+        
+            updateAmenityCount();
+        }
+
+        function updateAmenityCount() {
+            const count = allAmenities.filter(a => a.is_selected).length;
+            const el = document.getElementById('amenity-count');
+            if (el) el.textContent = `${count} selected`;
+        }
+
+        function toggleAmenity(id) {
+            const a = allAmenities.find(a => a.id === id);
+            if (a) a.is_selected = !a.is_selected;
+            renderAmenities();
+        }
+
+
+        function saveAmenities(btn) {
+            const selectedIds = allAmenities.filter(a => a.is_selected).map(a => a.id);
+        
+            // API: POST /api/owner/gym/amenities/sync
+            // Body: { amenity_ids: selectedIds }
+        
+            savedFeedback(btn);
+        }
+
+        function addCustomAmenity(btn) {
+            const icon = document.getElementById('customIcon').value.trim();
+            const name = document.getElementById('customName').value.trim();
+        
+            if (!name) { alert('Please enter an amenity name.'); return; }
+        
+            // Check duplicate
+            if (allAmenities.find(a => a.name.toLowerCase() === name.toLowerCase())) {
+                alert('This amenity already exists in the list.');
+                return;
+            }
+        
+            // API: POST /api/owner/gym/amenities/custom
+            // Body: { name, icon }
+            // On success: use real id from response
+        
+            const tempId = Date.now();
+            allAmenities.push({
+                id:          tempId,
+                icon:        icon || '🏋️',
+                name:        name,
+                is_default:  false,
+                is_selected: true,  // auto-selected
+            });
+                
+            // Clear form
+            document.getElementById('customIcon').value = '';
+            document.getElementById('customName').value = '';
+        
+            // Show feedback
+            const orig = btn.textContent;
+            btn.textContent = '✓ Added!';
+            btn.style.background = 'var(--green)';
+            setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             renderPlans();
             ['newDuration', 'newUnit', 'newPrice'].forEach(id => {
                 document.getElementById(id)?.addEventListener('input', updatePlanPreview);
             });
+            renderHours();
+            renderAmenities();
         });
-
-        renderHours();
-
     </script>
 </body>
 
