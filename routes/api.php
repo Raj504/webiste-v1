@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\NearbyGymController;
 use App\Http\Controllers\GymController;
 use App\Http\Controllers\Api\Owner\GymPlanController;
 use App\Http\Controllers\Api\Owner\GymAmenityController;
+use App\Http\Controllers\Api\BookingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,6 +58,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get(  '/',        [GymAmenityController::class, 'index']);     // GET all + selected
         Route::post( '/sync',    [GymAmenityController::class, 'sync']);      // save selection
         Route::post( '/custom',  [GymAmenityController::class, 'addCustom']); // add new amenity
+    });
+
+    Route::prefix('bookings')->group(function () {
+        Route::get(  '/',                [BookingController::class, 'index']);
+        Route::get(  '/{id}',           [BookingController::class, 'show']);
+        Route::post( '/create-order',   [BookingController::class, 'createOrder']);
+        Route::post( '/verify-payment', [BookingController::class, 'verifyPayment']);
     });
 
 });
