@@ -27,21 +27,21 @@ jobs:
       - name: Debug SSH Secret
         run: |
           mkdir -p ~/.ssh
-      
           printf '%s' "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
-      
+          chmod 600 ~/.ssh/deploy_key
+
           echo "File size:"
           wc -c ~/.ssh/deploy_key
-      
+
           echo "First line:"
           head -1 ~/.ssh/deploy_key
-      
+
           echo "Last line:"
           tail -1 ~/.ssh/deploy_key
-      
+
           echo "Hex dump of first 32 bytes:"
           xxd -l 32 ~/.ssh/deploy_key
-      
+
           file ~/.ssh/deploy_key
 
       - name: Sync files to server
