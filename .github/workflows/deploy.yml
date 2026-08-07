@@ -44,6 +44,10 @@ jobs:
 
           file ~/.ssh/deploy_key
 
+      - name: Test SSH connectivity
+        run: |
+          timeout 10 bash -c "</dev/tcp/82.25.125.167/65002"
+
       - name: Sync files to server
         run: |
           rsync -az \
