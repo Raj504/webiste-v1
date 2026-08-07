@@ -24,29 +24,23 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      - name: Debug SSH Secret
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           printf '%s' "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          echo "File size:"
-          wc -c ~/.ssh/deploy_key
+          ssh-keygen -l -f ~/.ssh/deploy_key
 
-          echo "First line:"
-          head -1 ~/.ssh/deploy_key
+          ssh-keyscan -p 65002 -H meritsphere.in >> ~/.ssh/known_hosts
 
-          echo "Last line:"
-          tail -1 ~/.ssh/deploy_key
-
-          echo "Hex dump of first 32 bytes:"
-          xxd -l 32 ~/.ssh/deploy_key
-
-          file ~/.ssh/deploy_key
+      - name: Check DNS Resolution
+        run: |
+          getent ahosts meritsphere.in
 
       - name: Test SSH connectivity
         run: |
-          timeout 10 bash -c "</dev/tcp/82.25.125.167/65002"
+          timeout 10 bash -c "</dev/tcp/meritsphere.in/65002"
 
       - name: Sync files to server
         run: |
@@ -59,14 +53,14 @@ jobs:
             --exclude='storage/app/public' \
             -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
             ./ \
-            u791137564@82.25.125.167:/home/u791137564/domains/meritsphere.in/public_html/gympass
+            u791137564@meritsphere.in:/home/u791137564/domains/meritsphere.in/public_html/gympass
 
       - name: Post-deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p 65002 \
             -o StrictHostKeyChecking=no \
-            u791137564@82.25.125.167 << 'ENDSSH'
+            u791137564@meritsphere.in << 'ENDSSH'
           set -e
           cd /home/u791137564/domains/meritsphere.in/public_html/gympass
           php artisan migrate --force
