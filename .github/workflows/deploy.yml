@@ -50,9 +50,14 @@ jobs:
         run: |
           getent ahosts meritsphere.in
 
-      - name: Test SSH connectivity
+      - name: Test SSH
         run: |
-          timeout 10 bash -c "</dev/tcp/meritsphere.in/65002"
+          ssh -vvv \
+            -i ~/.ssh/deploy_key \
+            -p 65002 \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=15 \
+            u791137564@meritsphere.in exit
 
       - name: Sync files to server
         run: |
