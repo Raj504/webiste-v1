@@ -24,15 +24,27 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      - name: Setup SSH
+      - name: Debug SSH Secret
         run: |
           mkdir -p ~/.ssh
+      
           printf '%s' "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
+      
+          echo "File size:"
+          wc -c ~/.ssh/deploy_key
+      
+          echo "First line:"
+          head -1 ~/.ssh/deploy_key
+      
+          echo "Last line:"
+          tail -1 ~/.ssh/deploy_key
+      
+          echo "File type:"
+          file ~/.ssh/deploy_key
+      
           chmod 600 ~/.ssh/deploy_key
-
-          ssh-keygen -l -f ~/.ssh/deploy_key
-
-          ssh-keyscan -p 65002 -H meritsphere.in >> ~/.ssh/known_hosts
+      
+          ssh-keygen -l -f ~/.ssh/deploy_key || true
 
       - name: Check DNS Resolution
         run: |
