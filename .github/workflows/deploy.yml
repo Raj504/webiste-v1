@@ -27,18 +27,14 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          
-          # Write the secret and ensure proper formatting
-          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
-          
-          # Ensure the file ends with a newline
-          echo "" >> ~/.ssh/deploy_key
-          
+      
+          printf '%s' "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
+      
           chmod 600 ~/.ssh/deploy_key
-          
+      
           echo "Checking private key..."
           ssh-keygen -l -f ~/.ssh/deploy_key
-          
+      
           echo "Fetching host key..."
           ssh-keyscan -p 65002 -H 82.25.125.167 >> ~/.ssh/known_hosts
 
