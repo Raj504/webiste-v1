@@ -509,6 +509,7 @@
 
         function closeModal() {
             document.getElementById('successModal').classList.add('hidden');
+            window.location.href = '{{ route('index') }}';
         }
 
         function showFailedModal(msg) {
