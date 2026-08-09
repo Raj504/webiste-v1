@@ -18,18 +18,46 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, tokenizer, xml, ctype, json
+          extensions: mbstring,bcmath,pdo,pdo_mysql,tokenizer,xml,ctype,json
           coverage: none
 
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      - name: Setup SSH
+      - name: Debug SSH Secret
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
+      
+          printf '%s' "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/deploy_key
+      
+          echo "File size:"
+          wc -c ~/.ssh/deploy_key
+      
+          echo "First line:"
+          head -1 ~/.ssh/deploy_key
+      
+          echo "Last line:"
+          tail -1 ~/.ssh/deploy_key
+      
+          echo "File type:"
+          file ~/.ssh/deploy_key
+      
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p 65002 -H 82.25.125.167 >> ~/.ssh/known_hosts 2>/dev/null
+      
+          ssh-keygen -l -f ~/.ssh/deploy_key || true
+
+      - name: Check DNS Resolution
+        run: |
+          getent ahosts meritsphere.in
+
+      - name: Test SSH
+        run: |
+          ssh -vvv \
+            -i ~/.ssh/deploy_key \
+            -p 65002 \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=15 \
+            u791137564@meritsphere.in exit
 
       - name: Sync files to server
         run: |
@@ -42,21 +70,21 @@ jobs:
             --exclude='storage/app/public' \
             -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
             ./ \
-            u791137564@82.25.125.167:/home/u791137564/domains/meritsphere.in/public_html/gympass
+            u791137564@meritsphere.in:/home/u791137564/domains/meritsphere.in/public_html/gympass
 
       - name: Post-deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p 65002 \
             -o StrictHostKeyChecking=no \
-            u791137564@82.25.125.167 << 'ENDSSH'
-            set -e
-            cd /home/u791137564/domains/meritsphere.in/public_html/gympass
-            php artisan migrate --force
-            php artisan config:clear
-            php artisan cache:clear
-            php artisan route:clear
-            php artisan view:clear
+            u791137564@meritsphere.in << 'ENDSSH'
+          set -e
+          cd /home/u791137564/domains/meritsphere.in/public_html/gympass
+          php artisan migrate --force
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan route:clear
+          php artisan view:clear
           ENDSSH
 
       - name: Cleanup
