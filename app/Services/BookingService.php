@@ -123,7 +123,7 @@ class BookingService
             ]);
         });
 
-        return $booking->fresh(['plan', 'gym', 'settlement']);
+        return $booking->fresh(['plan', 'gym', 'settlement', 'user']);
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

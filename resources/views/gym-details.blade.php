@@ -258,8 +258,16 @@
 
             {{-- Details --}}
             <div class="booking-summary-row">
+                <span class="t-muted">Booked By</span>
+                <span id="successTraveler" style="font-weight:600">—</span>
+            </div>
+            <div class="booking-summary-row">
                 <span class="t-muted">Gym</span>
                 <span id="successGym" style="font-weight:600">Iron Temple Gym</span>
+            </div>
+            <div class="booking-summary-row">
+                <span class="t-muted">Location</span>
+                <span id="successLocation" style="font-weight:600;text-align:right">—</span>
             </div>
             <div class="booking-summary-row">
                 <span class="t-muted">Plan</span>
@@ -344,7 +352,8 @@
         .booking-summary-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            gap: 12px;
             padding: 10px 0;
             border-bottom: 1px solid var(--border-1);
             font-size: 14px;
@@ -488,11 +497,13 @@
 
         // ── Modals ────────────────────────────────────────────────────────────
         function showSuccessModal(booking) {
-            document.getElementById('successRef').textContent    = booking.booking_ref;
-            document.getElementById('successGym').textContent    = booking.gym_name;
-            document.getElementById('successPlan').textContent   = booking.plan_name;
-            document.getElementById('successDate').textContent   = booking.start_date + (booking.start_date !== booking.end_date ? ' – ' + booking.end_date : '');
-            document.getElementById('successAmount').textContent = '₹' + booking.amount;
+            document.getElementById('successRef').textContent      = booking.booking_ref;
+            document.getElementById('successTraveler').textContent = booking.traveler_name + (booking.traveler_phone ? ' · ' + booking.traveler_phone : '');
+            document.getElementById('successGym').textContent      = booking.gym_name;
+            document.getElementById('successLocation').textContent = booking.gym_address || [booking.gym_area, booking.gym_city].filter(Boolean).join(', ') || '—';
+            document.getElementById('successPlan').textContent     = booking.plan_name;
+            document.getElementById('successDate').textContent     = booking.start_date + (booking.start_date !== booking.end_date ? ' – ' + booking.end_date : '');
+            document.getElementById('successAmount').textContent   = '₹' + booking.amount;
             document.getElementById('successModal').classList.remove('hidden');
         }
 
