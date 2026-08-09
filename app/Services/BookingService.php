@@ -12,10 +12,12 @@ use Illuminate\Support\Str;
 class BookingService
 {
     private RazorpayService $razorpay;
+    private GymMemberService $gymMemberService;
 
-    public function __construct(RazorpayService $razorpay)
+    public function __construct(RazorpayService $razorpay, GymMemberService $gymMemberService)
     {
         $this->razorpay = $razorpay;
+        $this->gymMemberService = $gymMemberService;
     }
 
     /**
@@ -156,6 +158,10 @@ class BookingService
                 'gym_upi_id'        => $gym->upi_id ?? '',
                 'payout_status'     => 'pending',
             ]);
+
+            // Keep the owner's members list current — de-duplicated by phone,
+            // so a repeat pass customer's existing row is refreshed, not doubled.
+            $this->gymMemberService->syncFromBooking($booking);
         });
 
         // TODO: trigger SMS / WhatsApp / email booking-confirmation notification to the traveler here (not built yet — planned for later).

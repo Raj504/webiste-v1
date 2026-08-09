@@ -59,6 +59,11 @@ class Gym extends Model
         return $this->hasMany(GymPlan::class);
     }
 
+    public function members(): HasMany
+    {
+        return $this->hasMany(GymMember::class);
+    }
+
     public function operatingHours()
     {
         return $this->hasMany(GymOperatingHour::class);

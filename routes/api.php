@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\NearbyGymController;
 use App\Http\Controllers\GymController;
 use App\Http\Controllers\Api\Owner\GymPlanController;
 use App\Http\Controllers\Api\Owner\GymAmenityController;
+use App\Http\Controllers\Api\Owner\GymMemberController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\RazorpayWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get(  '/',        [GymAmenityController::class, 'index']);     // GET all + selected
         Route::post( '/sync',    [GymAmenityController::class, 'sync']);      // save selection
         Route::post( '/custom',  [GymAmenityController::class, 'addCustom']); // add new amenity
+    });
+
+    Route::prefix('owner/gym/members')->group(function () {
+        Route::get(   '/',                        [GymMemberController::class, 'index']);
+        Route::post(  '/',                        [GymMemberController::class, 'store']);
+        Route::put(   '/{memberId}',               [GymMemberController::class, 'update']);
+        Route::delete('/{memberId}',               [GymMemberController::class, 'destroy']);
+        Route::post(  '/{memberId}/send-reminder', [GymMemberController::class, 'sendReminder']);
     });
 
     Route::prefix('bookings')->group(function () {
