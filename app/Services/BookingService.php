@@ -97,7 +97,42 @@ class BookingService
             throw new \RuntimeException('Payment signature verification failed.');
         }
 
-        // All good — activate in a transaction
+        return $this->activate($booking, $razorpayPaymentId, $razorpaySignature);
+    }
+
+    /**
+     * Activate a booking from a Razorpay webhook event (e.g. payment.captured).
+     *
+     * Used as a backend safety net: if the traveler's browser never completes the
+     * verify-payment call (closed tab, dropped connection) after Razorpay has
+     * actually captured the money, the webhook still gets the booking activated.
+     *
+     * The webhook layer (RazorpayWebhookController) verifies the request's
+     * authenticity itself, so no checkout-style order/payment signature is
+     * needed here — just idempotency against a booking that's already paid.
+     */
+    public function activateFromWebhook(string $razorpayOrderId, string $razorpayPaymentId): ?Booking
+    {
+        $booking = Booking::with(['plan.gym'])
+            ->where('razorpay_order_id', $razorpayOrderId)
+            ->first();
+
+        if (!$booking || $booking->status === 'paid') {
+            return $booking;
+        }
+
+        return $this->activate($booking, $razorpayPaymentId, null);
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    /**
+     * Shared activation step: mark booking paid, issue QR code, create settlement.
+     * Called only after the caller has already verified the payment is genuine
+     * (either via checkout signature, or via webhook signature).
+     */
+    private function activate(Booking $booking, string $razorpayPaymentId, ?string $razorpaySignature): Booking
+    {
         DB::transaction(function () use ($booking, $razorpayPaymentId, $razorpaySignature) {
             $gym  = $booking->plan->gym;
             $split = $this->razorpay->calculateSplit($booking->amount);
@@ -127,8 +162,6 @@ class BookingService
 
         return $booking->fresh(['plan', 'gym', 'settlement', 'user']);
     }
-
-    // ── Private helpers ───────────────────────────────────────────────────────
 
     private function generateRef(): string
     {

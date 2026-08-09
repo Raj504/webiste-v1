@@ -10,6 +10,7 @@ use Razorpay\Api\Api;
  * Add to .env:
  *   RAZORPAY_KEY_ID=rzp_live_xxxxxxxxx
  *   RAZORPAY_KEY_SECRET=xxxxxxxxxxxxxxxxxx
+ *   RAZORPAY_WEBHOOK_SECRET=xxxxxxxxxxxxxxxxxx
  *   RAZORPAY_COMMISSION_PCT=10
  */
 class RazorpayService
@@ -57,6 +58,27 @@ class RazorpayService
                 'razorpay_payment_id' => $paymentId,
                 'razorpay_signature'  => $signature,
             ]);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Verify a Razorpay webhook's signature.
+     * Webhooks are signed with the webhook secret (set in the Razorpay dashboard),
+     * not the API key secret used for checkout signature verification.
+     *
+     * $rawPayload must be the exact, unmodified request body string Razorpay sent.
+     */
+    public function verifyWebhookSignature(string $rawPayload, string $signature): bool
+    {
+        try {
+            $this->api->utility->verifyWebhookSignature(
+                $rawPayload,
+                $signature,
+                config('services.razorpay.webhook_secret'),
+            );
             return true;
         } catch (\Exception $e) {
             return false;

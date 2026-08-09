@@ -7,6 +7,7 @@ use App\Http\Controllers\GymController;
 use App\Http\Controllers\Api\Owner\GymPlanController;
 use App\Http\Controllers\Api\Owner\GymAmenityController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\RazorpayWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +37,9 @@ Route::prefix('auth')->group(function () {
 */
 Route::get('/gyms/nearby', [NearbyGymController::class, 'index']);
 Route::get('/gyms/{id}/plans', [GymController::class, 'plans']);
+
+// Called by Razorpay's servers, not the FE — must stay outside auth:sanctum.
+Route::post('/webhooks/razorpay', [RazorpayWebhookController::class, 'handle']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
