@@ -123,6 +123,8 @@ class BookingService
             ]);
         });
 
+        // TODO: trigger SMS / WhatsApp / email booking-confirmation notification to the traveler here (not built yet — planned for later).
+
         return $booking->fresh(['plan', 'gym', 'settlement', 'user']);
     }
 
