@@ -1479,6 +1479,9 @@ textarea.field__input {
   scrollbar-width: thin;
   scrollbar-color: var(--border-2) transparent;
 }
+.search-list__handle {
+  display: none;
+}
 .search-list__header {
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-1);
@@ -1488,9 +1491,15 @@ textarea.field__input {
   z-index: 10;
 }
 .search-map {
+  width: 100%;
+  height: 100%;
   background: var(--surface-1);
   position: relative;
   overflow: hidden;
+}
+.map-canvas {
+  width: 100%;
+  height: 100%;
 }
 
 /* Gym detail */
@@ -2095,7 +2104,57 @@ textarea.field__input {
   .col-2, .col-3   { grid-column: span 1; }
   .settings-layout  { grid-template-columns: 1fr; }
   .settings-nav     { position: static; }
-  .search-layout    { grid-template-columns: 1fr; }
+
+  /* Search — map-first layout, like Google Maps mobile: full-bleed map with
+     the results list as a bottom sheet floating over it, tap the handle to expand. */
+  .search-layout {
+    display: block;
+    position: relative;
+  }
+  .search-map {
+    position: absolute;
+    inset: 0;
+  }
+  .search-list {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    max-height: 42vh;
+    border-right: none;
+    border-top: 1px solid var(--border-1);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.45);
+    background: var(--surface-1);
+    z-index: 15;
+    transition: max-height 0.3s ease;
+  }
+  .search-list.is-expanded {
+    max-height: 85vh;
+  }
+  .search-list__handle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0 6px;
+    width: 100%;
+    background: var(--surface-1);
+    border: none;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 11;
+  }
+  .search-list__handle-bar {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-2);
+  }
+  .search-list__header {
+    top: 28px;
+  }
+  .gym-quick-detail {
+    z-index: 20;
+  }
 
   /* Auth layout stacks */
   .auth-brand { display: none; }
@@ -2285,11 +2344,20 @@ textarea.field__input {
   bottom: 0; left: 0; right: 0;
   background: var(--surface-1);
   border-top: 1px solid var(--border-1);
-  padding: 20px;
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
-  max-height: 60%;
+  padding: 28px 20px 20px;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.45);
+  max-height: 70%;
   overflow-y: auto;
+}
+.gym-quick-detail::before {
+  content: "";
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  width: 36px; height: 4px;
+  border-radius: 2px;
+  background: var(--border-2);
 }
 .gym-quick-detail__close {
   position: absolute;

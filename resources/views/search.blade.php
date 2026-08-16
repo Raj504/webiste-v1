@@ -28,7 +28,10 @@
 
     <div class="search-layout">
         <!-- LIST PANEL -->
-        <div class="search-list">
+        <div class="search-list" id="searchList">
+            <button class="search-list__handle" onclick="toggleListExpand()" aria-label="Expand or collapse list">
+                <span class="search-list__handle-bar"></span>
+            </button>
             <div class="search-list__header">
                 <div class="flex items-center justify-between mb-8">
                     <div><span class="t-heading" style="font-size:15px">Gyms in Rishikesh</span> <span class="t-muted"
@@ -185,6 +188,7 @@
                 id));
             const g = gyms.find(x => x.id === id);
             showQuickDetail(g);
+            document.getElementById('searchList').classList.remove('is-expanded');
         }
 
         function showQuickDetail(g) {
@@ -224,6 +228,12 @@
         function filterChip(el) {
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
             el.classList.add('is-active');
+        }
+
+        // Mobile bottom-sheet: tap the handle to expand/collapse the results list
+        // over the full-bleed map, same pattern as the Next.js search page.
+        function toggleListExpand() {
+            document.getElementById('searchList').classList.toggle('is-expanded');
         }
 
         renderList(gyms);
