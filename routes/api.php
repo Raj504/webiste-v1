@@ -44,8 +44,11 @@ Route::post('/webhooks/razorpay', [RazorpayWebhookController::class, 'handle']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('logout', [LoginController::class, 'logout']);
-    Route::get('me',      [LoginController::class, 'me']);
+    Route::prefix('auth')->group(function () {
+        Route::post('logout', [LoginController::class, 'logout']);
+        Route::get('me',      [LoginController::class, 'me']);
+    });
+
     Route::get('/gyms/{id}',[GymController::class, 'show']);
     Route::put('/gyms/{id}', [GymController::class, 'update']);
     Route::post('/gyms/{id}/operating-hours', [GymController::class, 'updateOperatingHours']);
