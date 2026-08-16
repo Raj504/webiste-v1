@@ -24,7 +24,6 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/signup', 'signup')->name('signup');
     Route::get('/login', 'login')->name('login');
 });
-
 Route::controller(GymController::class)->group(function () {
     Route::get('/bookings', 'bookings')->name('bookings');
     Route::get('/qr-scanner', 'QrScanner')->name('qr-scanner');
