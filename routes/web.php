@@ -35,7 +35,7 @@ Route::controller(GymController::class)->group(function () {
 });
 
 // Internal — Raj only. Gated by shared basic-auth creds (ADMIN_USERNAME/ADMIN_PASSWORD in .env),
-// not a real user role, since the app has no admin role yet. raj
+// not a real user role, since the app has no admin role yet.
 Route::middleware('admin.auth')->prefix('admin')->group(function () {
     Route::get('/settlements', [SettlementController::class, 'index'])->name('admin.settlements');
     Route::post('/settlements/{settlement}/toggle-paid', [SettlementController::class, 'togglePaid'])->name('admin.settlements.toggle-paid');
