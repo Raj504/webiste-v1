@@ -46,7 +46,12 @@ class RouteServiceProvider extends ServiceProvider
                 // Health check routes — no auth middleware
             Route::prefix('api')
                 ->middleware('api')
-                ->group(base_path('routes/health.php')); 
+                ->group(base_path('routes/health.php'));
+
+                // OpenAPI spec route — no auth middleware
+            Route::prefix('api')
+                ->middleware('api')
+                ->group(base_path('routes/openapi.php'));
 
             Route::middleware('web')
                 ->namespace($this->namespace)
