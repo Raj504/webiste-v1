@@ -25,6 +25,7 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/login', 'login')->name('login');
     Route::get('/profile', 'profile')->name('profile');
     Route::get('/my-bookings', 'myBookings')->name('my-bookings');
+    Route::get('/check-in', 'checkIn')->name('check-in-reference');
 });
 Route::controller(GymController::class)->group(function () {
     Route::get('/bookings', 'bookings')->name('bookings');

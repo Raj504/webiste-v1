@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\Owner\GymMemberController;
 use App\Http\Controllers\Api\Owner\InvoiceController;
 use App\Http\Controllers\Api\Owner\BookingController as OwnerBookingController;
 use App\Http\Controllers\Api\Owner\DashboardController;
+use App\Http\Controllers\Api\Owner\QrCodeController;
+use App\Http\Controllers\Api\CheckInController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\RazorpayWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('profile', [ProfileController::class, 'update']);
     });
 
+    // Registered before /gyms/{id} below — an unconstrained {id} segment
+    // would otherwise greedily match "check-in" as if it were a gym id.
+    Route::get(  '/gyms/check-in/{token}', [CheckInController::class, 'show']);
+    Route::post( '/gyms/check-in/{token}', [CheckInController::class, 'store']);
+
     Route::get('/gyms/{id}',[GymController::class, 'show']);
     Route::put('/gyms/{id}', [GymController::class, 'update']);
     Route::post('/gyms/{id}/operating-hours', [GymController::class, 'updateOperatingHours']);
@@ -92,6 +99,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get('owner/gym/dashboard', [DashboardController::class, 'index']);
+
+    Route::prefix('owner/gym/qr-code')->group(function () {
+        Route::get(  '/',            [QrCodeController::class, 'show']);
+        Route::post( '/regenerate',  [QrCodeController::class, 'regenerate']);
+    });
+    Route::get('owner/gym/check-ins', [QrCodeController::class, 'checkIns']);
 
     Route::prefix('bookings')->group(function () {
         Route::get(  '/',                [BookingController::class, 'index']);

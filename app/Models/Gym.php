@@ -26,7 +26,8 @@ class Gym extends Model
         'upi_id',
         'status',
         'mapbox_place_id',
-        'description'
+        'description',
+        'qr_token',
     ];
 
     protected $casts = [
@@ -72,6 +73,11 @@ class Gym extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function checkIns(): HasMany
+    {
+        return $this->hasMany(CheckIn::class);
     }
 
     public function operatingHours()

@@ -37,4 +37,8 @@ class HomeController extends Controller
     public function myBookings(){
         return view('my-bookings');
     }
+
+    public function checkIn(){
+        return view('check-in');
+    }
 }
