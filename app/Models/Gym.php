@@ -64,6 +64,11 @@ class Gym extends Model
         return $this->hasMany(GymMember::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function operatingHours()
     {
         return $this->hasMany(GymOperatingHour::class);

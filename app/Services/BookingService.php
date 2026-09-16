@@ -13,11 +13,13 @@ class BookingService
 {
     private RazorpayService $razorpay;
     private GymMemberService $gymMemberService;
+    private InvoiceService $invoiceService;
 
-    public function __construct(RazorpayService $razorpay, GymMemberService $gymMemberService)
+    public function __construct(RazorpayService $razorpay, GymMemberService $gymMemberService, InvoiceService $invoiceService)
     {
         $this->razorpay = $razorpay;
         $this->gymMemberService = $gymMemberService;
+        $this->invoiceService = $invoiceService;
     }
 
     /**
@@ -164,7 +166,13 @@ class BookingService
             $this->gymMemberService->syncFromBooking($booking);
         });
 
-        // TODO: trigger SMS / WhatsApp / email booking-confirmation notification to the traveler here (not built yet — planned for later).
+        // TODO: trigger SMS / WhatsApp booking-confirmation notification to the traveler here (not built yet — planned for later).
+
+        try {
+            $this->invoiceService->issueForBooking($booking->fresh(['plan', 'gym', 'settlement', 'user']));
+        } catch (\Exception $e) {
+            report($e);
+        }
 
         return $booking->fresh(['plan', 'gym', 'settlement', 'user']);
     }

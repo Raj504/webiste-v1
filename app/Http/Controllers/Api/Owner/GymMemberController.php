@@ -9,6 +9,7 @@ use App\Http\Requests\Owner\UpdateGymMemberRequest;
 use App\Mail\MembershipReminderMail;
 use App\Models\GymMember;
 use App\Services\GymMemberService;
+use App\Services\InvoiceService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,10 +18,12 @@ use Illuminate\Support\Facades\Mail;
 class GymMemberController extends Controller
 {
     private GymMemberService $gymMemberService;
+    private InvoiceService $invoiceService;
 
-    public function __construct(GymMemberService $gymMemberService)
+    public function __construct(GymMemberService $gymMemberService, InvoiceService $invoiceService)
     {
         $this->gymMemberService = $gymMemberService;
+        $this->invoiceService = $invoiceService;
     }
 
     /**
@@ -55,6 +58,17 @@ class GymMemberController extends Controller
         }
 
         $member = $this->gymMemberService->addOrRenew($gym, $request->validated());
+
+        try {
+            $this->invoiceService->issueForGymMember(
+                $gym,
+                $member,
+                $request->validated('amount'),
+                $request->validated('payment_status') ?? 'unpaid'
+            );
+        } catch (\Exception $e) {
+            report($e);
+        }
 
         return ApiResponse::created(
             'member_saved',

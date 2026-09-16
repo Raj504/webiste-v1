@@ -14,13 +14,15 @@ class AddGymMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required', 'string', 'max:255'],
-            'phone'         => ['required', 'string', 'max:20'],
-            'email'         => ['nullable', 'email', 'max:255'],
-            'start_date'    => ['required', 'date'],
-            'duration_type' => ['required', 'in:1_month,3_months,6_months,12_months,custom'],
-            'custom_days'   => ['required_if:duration_type,custom', 'integer', 'min:1', 'max:730'],
-            'notes'         => ['nullable', 'string', 'max:1000'],
+            'name'           => ['required', 'string', 'max:255'],
+            'phone'          => ['required', 'string', 'max:20'],
+            'email'          => ['nullable', 'email', 'max:255'],
+            'start_date'     => ['required', 'date'],
+            'duration_type'  => ['required', 'in:1_month,3_months,6_months,12_months,custom'],
+            'custom_days'    => ['required_if:duration_type,custom', 'integer', 'min:1', 'max:730'],
+            'notes'          => ['nullable', 'string', 'max:1000'],
+            'amount'         => ['nullable', 'integer', 'min:0'],
+            'payment_status' => ['nullable', 'in:paid,unpaid'],
         ];
     }
 
