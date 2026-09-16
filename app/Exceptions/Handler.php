@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use App\Helpers\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -60,6 +61,14 @@ class Handler extends ExceptionHandler
             return ApiResponse::unauthorized(
                 'unauthenticated',
                 'Authentication required. Please log in.',
+            );
+        }
+
+        // ── Model not found (e.g. findOrFail() on a bad/missing id) ──────────
+        if ($e instanceof ModelNotFoundException) {
+            return ApiResponse::badRequest(
+                'not_found',
+                'The requested resource was not found.',
             );
         }
 

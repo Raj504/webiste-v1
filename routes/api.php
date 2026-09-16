@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Owner\GymPlanController;
 use App\Http\Controllers\Api\Owner\GymAmenityController;
 use App\Http\Controllers\Api\Owner\GymMemberController;
 use App\Http\Controllers\Api\Owner\InvoiceController;
+use App\Http\Controllers\Api\Owner\BookingController as OwnerBookingController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\RazorpayWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -80,6 +81,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/',                     [InvoiceController::class, 'index']);
         Route::get('/{invoiceId}',          [InvoiceController::class, 'show']);
         Route::get('/{invoiceId}/download', [InvoiceController::class, 'download']);
+    });
+
+    Route::prefix('owner/gym/bookings')->group(function () {
+        Route::get('/', [OwnerBookingController::class, 'index']);
     });
 
     Route::prefix('bookings')->group(function () {
