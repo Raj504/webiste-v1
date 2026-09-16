@@ -18,8 +18,20 @@
             <a href="gym-settings.html" class="topnav-link">For Gyms</a>
         </nav>
         <div class="topnav-actions">
-            <a href="{{ route('login') }}" class="btn btn--ghost btn--sm">Log in</a>
-            <a href="{{ route('signup') }}" class="btn btn--primary btn--sm">Get Started →</a>
+            {{-- Logged-in traveler state — this dropdown is a UI reference only,
+                 no real session/auth wiring here. See profile.blade.php and
+                 my-bookings.blade.php for the two pages it links to. --}}
+            <details class="profile-dropdown">
+                <summary class="profile-dropdown__trigger">
+                    <span class="profile-dropdown__avatar">M</span>
+                    Hi, Manish
+                </summary>
+                <div class="profile-dropdown__menu">
+                    <a href="{{ route('profile') }}" class="profile-dropdown__item">👤 Profile</a>
+                    <a href="{{ route('my-bookings') }}" class="profile-dropdown__item">📅 My Bookings</a>
+                    <a href="{{ route('index') }}" class="profile-dropdown__item">🚪 Log out</a>
+                </div>
+            </details>
         </div>
     </header>
 

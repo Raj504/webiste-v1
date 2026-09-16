@@ -29,4 +29,12 @@ class HomeController extends Controller
     public function login(){
         return view('login');
     }
+
+    public function profile(){
+        return view('profile');
+    }
+
+    public function myBookings(){
+        return view('my-bookings');
+    }
 }

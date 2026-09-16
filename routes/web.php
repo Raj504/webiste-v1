@@ -23,6 +23,8 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/gym-details', 'gymDetails')->name('gym-details');
     Route::get('/signup', 'signup')->name('signup');
     Route::get('/login', 'login')->name('login');
+    Route::get('/profile', 'profile')->name('profile');
+    Route::get('/my-bookings', 'myBookings')->name('my-bookings');
 });
 Route::controller(GymController::class)->group(function () {
     Route::get('/bookings', 'bookings')->name('bookings');

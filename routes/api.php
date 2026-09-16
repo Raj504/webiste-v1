@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\Auth\ProfileController;
 use App\Http\Controllers\Api\NearbyGymController;
 use App\Http\Controllers\GymController;
 use App\Http\Controllers\Api\Owner\GymPlanController;
@@ -50,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('logout', [LoginController::class, 'logout']);
         Route::get('me',      [LoginController::class, 'me']);
+        Route::get('profile',  [ProfileController::class, 'show']);
+        Route::post('profile', [ProfileController::class, 'update']);
     });
 
     Route::get('/gyms/{id}',[GymController::class, 'show']);
