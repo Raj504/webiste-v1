@@ -45,6 +45,12 @@ Route::prefix('auth')->group(function () {
 Route::get('/gyms/nearby', [NearbyGymController::class, 'index']);
 Route::get('/gyms/{id}/plans', [GymController::class, 'plans']);
 
+// Public so a traveller can read a gym's page before signing up.
+// whereNumber matters: without it this would also match "/gyms/check-in",
+// swallowing the check-in route registered further down.
+// GymController::show deliberately leaves out qr_token and upi_id.
+Route::get('/gyms/{id}', [GymController::class, 'show'])->whereNumber('id');
+
 // Called by Razorpay's servers, not the FE — must stay outside auth:sanctum.
 Route::post('/webhooks/razorpay', [RazorpayWebhookController::class, 'handle']);
 
@@ -62,7 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get(  '/gyms/check-in/{token}', [CheckInController::class, 'show']);
     Route::post( '/gyms/check-in/{token}', [CheckInController::class, 'store']);
 
-    Route::get('/gyms/{id}',[GymController::class, 'show']);
+    // GET /gyms/{id} is public now — see the route above the auth group.
     Route::put('/gyms/{id}', [GymController::class, 'update']);
     Route::post('/gyms/{id}/operating-hours', [GymController::class, 'updateOperatingHours']);
     Route::get('/gyms/{id}/operating-hours', [GymController::class, 'operatingHours']);

@@ -41,10 +41,70 @@ class GymController extends Controller
         return view('analytics');
     }
 
-    public function show($id)
+    /**
+     * GET /api/gyms/{id}
+     *
+     * Public: a traveller has to be able to read a gym's page before they
+     * sign up, so this route sits outside auth:sanctum.
+     *
+     * Because it is public we build the response field by field instead of
+     * returning the model. Two columns must never leave the server:
+     *   - qr_token  is the gym's check-in secret; anyone holding it could
+     *               forge check-ins.
+     *   - upi_id    is where the owner's money goes.
+     * Returning $gym directly would have published both.
+     */
+    public function show(Request $request, $id)
     {
-        $gym = Gym::with('owner')->where('status', 'active')->findOrFail($id);
-        return response()->json(['data' => $gym]);
+        $gym = Gym::with(['amenities', 'operatingHours'])
+            ->where('status', 'active')
+            ->findOrFail($id);
+
+        $data = [
+            'id'           => $gym->id,
+            'name'         => $gym->name,
+            'description'  => $gym->description,
+            'address_text' => $gym->address_text,
+            'area'         => $gym->area,
+            'city'         => $gym->city,
+            'lat'          => (float) $gym->lat,
+            'lng'          => (float) $gym->lng,
+            'monthly_rate' => (int) $gym->monthly_rate,
+            'pricing'      => $gym->pricing,
+
+            // The owner maintains this under "public gym listing information",
+            // so it is the gym's contact number, not a private one.
+            'phone'        => $gym->owner ? $gym->owner->phone : null,
+
+            'amenities' => $gym->amenities->map(fn($amenity) => [
+                'id'   => $amenity->id,
+                'name' => $amenity->name,
+                'icon' => $amenity->icon,
+            ])->values(),
+
+            'operating_hours' => $gym->operatingHours->map(fn($hour) => [
+                'day'    => $hour->day,
+                'open'   => $hour->open_time,
+                'close'  => $hour->close_time,
+                'closed' => (bool) $hour->is_closed,
+            ])->values(),
+        ];
+
+        // The owner's own Settings screen loads this same endpoint and edits
+        // the owner name and phone, so those extra fields go to them only.
+        $viewer = auth('sanctum')->user();
+
+        if ($viewer != null && $viewer->id === $gym->user_id) {
+            $data['owner'] = [
+                'id'    => $gym->owner->id,
+                'name'  => $gym->owner->name,
+                'phone' => $gym->owner->phone,
+                'role'  => $gym->owner->role,
+            ];
+            $data['upi_id'] = $gym->upi_id;
+        }
+
+        return response()->json(['data' => $data]);
     }
 
     public function plans($id)
